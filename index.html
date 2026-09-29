@@ -175,8 +175,7 @@ footer { text-align: center; color: var(--muted); font-size: .85rem; }
     <p class="lotto-note" id="lottoCount">추첨 횟수 0회 · 노란 테두리 공이 보너스 번호예요. 재미로만 봐 주세요, 당첨을 보장하지 않아요.</p>
   </section>
 
-  <section class="contact">
-    <span class="label">Contact</span>
+  <section class="contact">    <span class="label">Contact</span>
     <h2>행복이 필요할 땐 연락주세요</h2>
     <p>우울한 날, 자랑하고 싶은 날, 그냥 심심한 날 모두 환영이에요.</p>
     <div class="row">
@@ -223,7 +222,7 @@ function ball(n, bonus) {
   return el;
 }
 let lottoCount = 0;
-function drawLotto() {
+document.getElementById("lottoBtn").addEventListener("click", () => {
   const games = document.getElementById("games");
   games.replaceChildren();
   for (let g = 1; g <= 5; g++) {
@@ -243,9 +242,7 @@ function drawLotto() {
   lottoCount++;
   document.getElementById("lottoCount").textContent = "추첨 횟수 " + lottoCount + "회 · 노란 테두리 공이 보너스 번호예요. 재미로만 봐 주세요, 당첨을 보장하지 않아요.";
   document.getElementById("lottoBtn").textContent = "다시 추첨";
-}
-document.getElementById("lottoBtn").addEventListener("click", drawLotto);
-drawLotto();
+});
 
 document.getElementById("copyBtn").addEventListener("click", (e) => {
   const b = e.currentTarget, t = document.getElementById("email").textContent;
