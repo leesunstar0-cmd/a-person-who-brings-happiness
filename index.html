@@ -82,26 +82,8 @@ p { margin: 0; }
 .charge button:hover, .contact button:hover { transform: translateY(-2px); }
 .charge button:focus-visible, .contact button:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
 
-/* Lotto */
-.lotto { display: flex; flex-direction: column; gap: 16px; }
-.lotto-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
-.lotto-head button { font: inherit; font-family: var(--font-display); font-size: 1.05rem; background: var(--sky); color: #fff; border: 0; border-radius: 99px; padding: 10px 22px; cursor: pointer; transition: transform .15s ease; }
-.lotto-head button:hover { transform: translateY(-2px); }
-.lotto-head button:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
-.games { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.games li { display: grid; grid-template-columns: 3.5rem 1fr; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--line); }
-.games li:last-child { border-bottom: 0; }
-.games .game { font-family: var(--font-display); color: var(--muted); }
-.games .empty { display: block; color: var(--muted); padding: 12px 0; }
-.balls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
-.ball { width: 2.4rem; height: 2.4rem; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: .95rem; font-variant-numeric: tabular-nums; text-shadow: 0 1px 1px rgba(0,0,0,.25); animation: pop .35s ease; }
-.ball.b1 { background: #fbc02d; } .ball.b2 { background: #1976d2; } .ball.b3 { background: #e53935; } .ball.b4 { background: #757575; } .ball.b5 { background: #43a047; }
-.ball.bonus { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--sun); }
-.plus { color: var(--muted); font-weight: 700; margin-inline: 2px; }
-.lotto-note { font-size: .85rem; color: var(--muted); }
-@keyframes pop { 0% { transform: scale(0); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
-
-/* Contact */.contact { display: flex; flex-direction: column; gap: 12px; }
+/* Contact */
+.contact { display: flex; flex-direction: column; gap: 12px; }
 .contact .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .contact code { font-family: var(--font-body); background: var(--surface); border: 1px solid var(--line); padding: 6px 12px; border-radius: 8px; user-select: all; }
 .contact button { font-size: .95rem; padding: 8px 18px; background: var(--sky); color: #fff; }
@@ -110,9 +92,8 @@ footer { text-align: center; color: var(--muted); font-size: .85rem; }
 @media (max-width: 480px) {
   .stats { grid-template-columns: 1fr; }
   .recipe li { grid-template-columns: 1fr; gap: 2px; }
-  .games li { grid-template-columns: 1fr; gap: 6px; }
 }
-@media (prefers-reduced-motion: reduce) { button { transition: none; } .ball { animation: none; } }
+@media (prefers-reduced-motion: reduce) { button { transition: none; } }
 </style>
 </head>
 <body>
@@ -163,19 +144,8 @@ footer { text-align: center; color: var(--muted); font-size: .85rem; }
     <button type="button" id="chargeBtn">행복 충전하기</button>
   </section>
 
-  <section class="lotto">
-    <span class="label">Lucky Numbers</span>
-    <div class="lotto-head">
-      <h2>JS의 행운 번호 추첨</h2>
-      <button type="button" id="lottoBtn">로또 5게임 추첨</button>
-    </div>
-    <ul class="games" id="games" aria-live="polite">
-      <li><span class="empty">버튼을 누르면 1~45 중 번호 6개와 보너스 번호로 5게임을 뽑아드려요.</span></li>
-    </ul>
-    <p class="lotto-note" id="lottoCount">추첨 횟수 0회 · 노란 테두리 공이 보너스 번호예요. 재미로만 봐 주세요, 당첨을 보장하지 않아요.</p>
-  </section>
-
-  <section class="contact">    <span class="label">Contact</span>
+  <section class="contact">
+    <span class="label">Contact</span>
     <h2>행복이 필요할 땐 연락주세요</h2>
     <p>우울한 날, 자랑하고 싶은 날, 그냥 심심한 날 모두 환영이에요.</p>
     <div class="row">
@@ -207,41 +177,6 @@ btn.addEventListener("click", () => {
   bar.style.width = level + "%";
   meterText.textContent = level === 100 ? "행복 게이지 100% 완충!" : "행복 게이지 " + level + "%";
   btn.textContent = level === 100 ? "처음부터 다시 충전" : "한 번 더 충전하기";
-});
-
-function drawGame() {
-  const pool = Array.from({ length: 45 }, (_, i) => i + 1);
-  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-  return { numbers: pool.slice(0, 6).sort((a, b) => a - b), bonus: pool[6] };
-}
-function ball(n, bonus) {
-  const el = document.createElement("span");
-  el.className = "ball b" + Math.min(5, Math.ceil(n / 10)) + (bonus ? " bonus" : "");
-  el.textContent = n;
-  if (bonus) el.setAttribute("aria-label", "보너스 " + n);
-  return el;
-}
-let lottoCount = 0;
-document.getElementById("lottoBtn").addEventListener("click", () => {
-  const games = document.getElementById("games");
-  games.replaceChildren();
-  for (let g = 1; g <= 5; g++) {
-    const { numbers, bonus } = drawGame();
-    const li = document.createElement("li");
-    const label = document.createElement("span");
-    label.className = "game"; label.textContent = g + "게임";
-    const balls = document.createElement("div");
-    balls.className = "balls";
-    numbers.forEach((n) => balls.appendChild(ball(n, false)));
-    const plus = document.createElement("span");
-    plus.className = "plus"; plus.textContent = "+"; plus.setAttribute("aria-hidden", "true");
-    balls.append(plus, ball(bonus, true));
-    li.append(label, balls);
-    games.appendChild(li);
-  }
-  lottoCount++;
-  document.getElementById("lottoCount").textContent = "추첨 횟수 " + lottoCount + "회 · 노란 테두리 공이 보너스 번호예요. 재미로만 봐 주세요, 당첨을 보장하지 않아요.";
-  document.getElementById("lottoBtn").textContent = "다시 추첨";
 });
 
 document.getElementById("copyBtn").addEventListener("click", (e) => {
